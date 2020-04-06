@@ -13,3 +13,4 @@
     - 代わりに、rqt の Message Publisher を使用できる
     - ただし、display.lauch を編集して、デフォルトの joint_state_publisher を起動しないようにしておく必要がある
     - また、時刻が加算されないと反映されない
+        - Header の sec パラメータを加算する
