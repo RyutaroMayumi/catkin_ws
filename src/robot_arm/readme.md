@@ -10,7 +10,20 @@
     - 表示も正常に行えるようになった
 - joint_state_publisher のGUIが表示されない
     - デフォルトで設定がTrueになっているが表示されない
-    - 代わりに、rqt の Message Publisher を使用できる
+    - 代わりに、rqt の Message Publisher (rqt_publisher) を使用できる
     - ただし、display.lauch を編集して、デフォルトの joint_state_publisher を起動しないようにしておく必要がある
+        - 以下のコマンドで、launch ファイルをエディタで開いて編集する
+            ```
+            $ sudo chmod 777 /path/to/launch/file
+            $ code -r /path/to/launch/file
+            ```
+        - 以下の行を削除する
+            ```
+            <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+            ```
+        - 編集が終わったらアクセス権をもとに戻しておく
+            ```
+            $ sudo chmod 644 /path/to/launch/file
+            ```
     - また、時刻が加算されないと反映されない
         - Header の sec パラメータを加算する
