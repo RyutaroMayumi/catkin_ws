@@ -27,3 +27,41 @@
             ```
     - また、時刻が加算されないと反映されない
         - Header の sec パラメータを加算する
+
+    - 原因が判明
+        - GUI が表示されない原因は、display.launch ファイルが間違っている（joint_state_publisher_gui が使われていない）ため
+        - オリジナル
+            ```
+            <launch>
+
+              <arg name="model" default="$(find urdf_tutorial)/urdf/01-myfirst.urdf"/>
+              <arg name="gui" default="true" />
+              <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
+
+              <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+              <param name="use_gui" value="$(arg gui)"/>
+
+              <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+              <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+              <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+            </launch>
+            ```
+        - [最新版](https://github.com/ros/urdf_tutorial/blob/master/launch/display.launch)
+            ```
+            <launch>
+
+              <arg name="model" default="$(find urdf_tutorial)/urdf/01-myfirst.urdf"/>
+              <arg name="gui" default="true" />
+              <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
+
+              <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+              <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+              <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+              <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+              <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+            </launch>
+            ```
+            
