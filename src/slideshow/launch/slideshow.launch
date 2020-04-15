@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="slideshow" name="slideshow" type="slideshow" output="screen">
+    <param name="path" type="str" value="/home/pi/data/images"/>
+    <param name="duration" type="double" value="1.0"/>
+  </node>
+  <node pkg="rqt_image_view" name="rqt_image_view" type="rqt_image_view" args="/image_raw"/>
+</launch>

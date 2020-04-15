@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(robot_arm)
+project(slideshow)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -9,7 +9,9 @@ project(robot_arm)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  sensor_msgs
   std_msgs
+  cv_bridge
 )
 
 ## System dependencies are found with CMake's conventions
@@ -69,7 +71,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   sensor_msgs#   std_msgs
 # )
 
 ################################################
@@ -103,8 +105,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES robot_arm
-#  CATKIN_DEPENDS roscpp std_msgs
+#  LIBRARIES slideshow
+#  CATKIN_DEPENDS roscpp sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -121,7 +123,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/robot_arm.cpp
+#   src/${PROJECT_NAME}/slideshow.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -132,9 +134,8 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/robot_arm_node.cpp)
-add_executable(servo_test src/servo_test.cpp)
-add_executable(motor_driver src/motor_driver.cpp)
+# add_executable(${PROJECT_NAME}_node src/slideshow_node.cpp)
+add_executable(slideshow src/slideshow.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,11 +151,9 @@ add_executable(motor_driver src/motor_driver.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(servo_test ${catkin_LIBRARIES})
-target_link_libraries(servo_test pigpiod_if2)
-target_link_libraries(motor_driver ${catkin_LIBRARIES})
-target_link_libraries(motor_driver pigpiod_if2)
-
+find_package(OpenCV REQUIRED)
+#message(Ryutaro Mayumi ${OpenCV_DIR})
+target_link_libraries(slideshow ${catkin_LIBRARIES} ${OpenCV_LIBS})
 
 #############
 ## Install ##
@@ -203,7 +202,7 @@ target_link_libraries(motor_driver pigpiod_if2)
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_robot_arm.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_slideshow.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

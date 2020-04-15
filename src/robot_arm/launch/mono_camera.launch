@@ -1,0 +1,12 @@
+<launch>
+  <node pkg="usb_cam" name="usb_cam0" type="usb_cam_node" >
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="mjpeg" />
+  </node>
+  <node pkg="image_view" name="image_view0" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/usb_cam0/image_raw"/>
+    <param name="autosize" value="true" />
+  </node>
+</launch>
