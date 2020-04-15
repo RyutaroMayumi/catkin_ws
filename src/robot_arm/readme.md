@@ -14,11 +14,11 @@
 - [ビニル平行電線 (0.5～1.25SQ程度)](https://www.sengoku.co.jp/mod/sgk_cart/detail.php?code=76UE-4GK2)
 - [サーボテスター（必須ではない）](https://www.amazon.co.jp/gp/product/B07R8SBS5S/ref=ppx_yo_dt_b_asin_title_o08_s00?ie=UTF8&psc=1)
 - その他
-    - LED, 抵抗器 (200～300Ω程度), ヘッダピン
+    - LED, 抵抗器 (200～300Ω程度), ピンヘッダ
 
 ## ソフトウェア
-- 環境構築
-    - [参考](https://qiita.com/Ninagawa_Izumi/items/063d9d4910a19e9fcdec)
+### 環境構築
+- Raspberry Pi への ROS インストール -> [参考](https://qiita.com/Ninagawa_Izumi/items/063d9d4910a19e9fcdec)
 - Windows との連携
     - VSCode との連携
         - SSH Development をインストール
@@ -26,18 +26,38 @@
             ```
             $ ssh-keygen -t rsa -b 4096 -C "your_mail@address"
             ```
-        - このへんを[参考](https://qiita.com/igrep/items/3a3ba8e9089885c3c9f6)にして接続
+        - このへんを[参考](https://qiita.com/dearmarie/items/4e8c7bb5d71d4f626b74)にして接続
     - [GUIの表示](https://www.atmarkit.co.jp/ait/articles/1812/06/news040.html)
-    - [この設定も必要](https://qiita.com/masa-tu/items/20111878476bb97a9d07)
-- モデルの作成
-    - [参考](https://qiita.com/yoneken/items/ed2e5edf3aa4e0d8d2e3)
+        - [この設定も必要](https://qiita.com/masa-tu/items/20111878476bb97a9d07)
+        - 出力先のモニターを変更する場合は、~/.bashrc の以下の記述を変更する
+            ```
+            DISPLAY=xxx.xxx.xxx.xxx:0.0
+            ```
+    - ROS の追加機能をビルドする
+        - opencv, gtk をインストールしておく
+            ```
+            $ sudo apt install libopencv-dev
+            $ sudo apt install libgtk-3-dev
+            ```
+            - ビルド中に「... not found」のエラーが出たらインストールする
+        - [image_common](https://github.com/ros-perception/image_common)
+        - [vision_opencv](https://github.com/ros-perception/vision_opencv)
+        - [geometry2](https://github.com/ros/geometry2)
+        - [image_pipeline](https://github.com/ros-perception/image_pipeline)
+        - [usb_cam](https://github.com/ros-drivers/usb_cam)
+        - ビルド時に OpenCV 関連のエラーが出る場合は、/usr/share/OpenCV 以下に cmake の config ファイルがあるかどうかを確認
+
+### モデルの作成
+- [参考](https://qiita.com/yoneken/items/ed2e5edf3aa4e0d8d2e3)
+- [複数のリンクを同時に動かす](https://answers.ros.org/question/341365/urdf-attaching-two-joints-to-one-link-for-a-gripper/)
 - check_urdf コマンド
     - デフォルトでは check_urdf コマンドがインストールされていないため、以下のコマンドでインストールする
         ```
         $ sudo apt install liburdfdom-tools
         ```
 - rviz でリンク1より先が表示できないエラー
-    - "Could not find the GUI, install the 'joint_state_publisher_gui' package" と怒られているので、パッケージをインストールする
+    - "Could not find the GUI, install the 'joint_state_publisher_gui' package" と怒られているので、パッケージをビルドする
+        - [joint_state_publisher](https://github.com/ros/joint_state_publisher)
     - 特に他の依存関係はなくビルド成功
     - 表示も正常に行えるようになった
 - joint_state_publisher のGUIが表示されない
@@ -59,23 +79,22 @@
             ```
     - また、時刻が加算されないと反映されない
         - Header の sec パラメータを加算する
-
     - 原因が判明
         - GUI が表示されない原因は、display.launch ファイルが間違っている（joint_state_publisher_gui が使われていない）ため
         - オリジナル
             ```
             <launch>
 
-              <arg name="model" default="$(find urdf_tutorial)/urdf/01-myfirst.urdf"/>
-              <arg name="gui" default="true" />
-              <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
+            <arg name="model" default="$(find urdf_tutorial)/urdf/01-myfirst.urdf"/>
+            <arg name="gui" default="true" />
+            <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
 
-              <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
-              <param name="use_gui" value="$(arg gui)"/>
+            <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+            <param name="use_gui" value="$(arg gui)"/>
 
-              <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-              <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
-              <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+            <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+            <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+            <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 
             </launch>
             ```
@@ -83,17 +102,27 @@
             ```
             <launch>
 
-              <arg name="model" default="$(find urdf_tutorial)/urdf/01-myfirst.urdf"/>
-              <arg name="gui" default="true" />
-              <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
+            <arg name="model" default="$(find urdf_tutorial)/urdf/01-myfirst.urdf"/>
+            <arg name="gui" default="true" />
+            <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
 
-              <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+            <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
 
-              <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
-              <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-              <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-              <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+            <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+            <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+            <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+            <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 
             </launch>
             ```
-            
+
+### GPIO によるサーボモーターの制御
+- [参考](https://mozyanari.hatenablog.com/entry/2019/07/25/113932)
+
+### 認識機能の導入
+- [参考](https://www.youtube.com/watch?v=aimSGOAUI8Y)
+- 以下のコマンドで実行
+    ```
+    $ python3 TFLite_detection_webcam.py --modeldir=sample_TFLite_model
+    ```
+

@@ -53,7 +53,7 @@ private:
 
     void callback(const sensor_msgs::JointState& msg)
     {
-        print_joint_states(msg.name, msg.position);
+        // print_joint_states(msg.name, msg.position);
 
         for (int i = 0; i < msg.name.size(); ++i) {
             if (gpios_.count(msg.name[i])) {
