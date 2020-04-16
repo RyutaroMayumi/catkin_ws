@@ -115,7 +115,10 @@
 
             </launch>
             ```
-
+    - グリッパーモデルの表示
+        - [ココ](http://wiki.ros.org/urdf/Tutorials/Building%20a%20Visual%20Robot%20Model%20with%20URDF%20from%20Scratch)を参照
+    - カメラモデルの表示
+        - [ココ](https://github.com/OUXT-Polaris/ros_ship_packages) からSTLモデルを借用
 ### GPIO によるサーボモーターの制御
 - [参考](https://mozyanari.hatenablog.com/entry/2019/07/25/113932)
 
