@@ -119,6 +119,7 @@
         - [ココ](http://wiki.ros.org/urdf/Tutorials/Building%20a%20Visual%20Robot%20Model%20with%20URDF%20from%20Scratch)を参照
     - カメラモデルの表示
         - [ココ](https://github.com/OUXT-Polaris/ros_ship_packages) からSTLモデルを借用
+        
 ### GPIO によるサーボモーターの制御
 - [参考](https://mozyanari.hatenablog.com/entry/2019/07/25/113932)
 
@@ -130,4 +131,11 @@
     $ source tflite-env/bin/activate
     $ python3 TFLite_detection_webcam.py --modeldir=Sample_TFLite_model --resolution=640x480
     ```
+- OpenCVを使ったカメラ画像の取得
+    - [参考](https://qiita.com/vs4sh/items/4a9ce178f1b2fd26ea30)
+- tflite on raspberry pi のC++サンプル
+    - [参考1 : 数字認識](https://qiita.com/iwatake2222/items/4d198f6203348ef7fd31)
+    - [参考2 : カメラ画像の認識](https://github.com/mattn/webcam-detect-tflite/blob/master/main.cxx)
+- ROSへの組み込み（OpenCV + ROS）
+    - [参考 : image_trasport の使い方](https://ya10345.hatenablog.com/entry/2019/05/19/031443)
 
