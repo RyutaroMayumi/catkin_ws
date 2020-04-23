@@ -1,0 +1,15 @@
+<launch>
+  <node pkg="usb_cam" name="usb_cam" type="usb_cam_node" output="screen">
+    <param name="video_device" value="/dev/video0"/>
+    <param name="image_width" value="640"/>
+    <param name="image_height" value="480"/>
+    <param name="pixel_format" value="mjpeg"/>
+  </node>
+  <node pkg="webcam_detect" name="webcam_detect" type="webcam_detect" output="screen">
+    <param name="model_path" type="str" value="/home/pi/data/tflite/ssd_mobilenet_v2_quantized_300x300/detect.tflite"/>
+    <param name="label_path" type="str" value="/home/pi/data/tflite/ssd_mobilenet_v2_quantized_300x300/labelmap.txt"/>
+    <param name="image_width" type="int" value="640"/>
+    <param name="image_height" type="int" value="480"/>
+  </node>
+  <node pkg="rqt_image_view" name="rqt_image_view" type="rqt_image_view" args="/image_rects"/>
+</launch>

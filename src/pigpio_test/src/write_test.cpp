@@ -33,7 +33,7 @@ void gpio::cb_LED(const std_msgs::Bool::ConstPtr &data)
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "gpio");
+    ros::init(argc, argv, "gpio_write");
     gpio gpio;
     ros::spin();
     

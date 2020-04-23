@@ -98,7 +98,7 @@ public:
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "servo");
+    ros::init(argc, argv, "motor_driver");
     MotorDriver driver;
     ros::spin();
     

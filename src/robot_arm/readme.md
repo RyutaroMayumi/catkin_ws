@@ -126,6 +126,8 @@
 - [参考](https://www.youtube.com/watch?v=aimSGOAUI8Y)
 - 以下のコマンドで実行
     ```
-    $ python3 TFLite_detection_webcam.py --modeldir=sample_TFLite_model
+    $ cd ~/Workspace/git/tflite1
+    $ source tflite-env/bin/activate
+    $ python3 TFLite_detection_webcam.py --modeldir=Sample_TFLite_model --resolution=640x480
     ```
 

@@ -1,15 +1,40 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(pigpio_test)
+project(webcam_detect)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
+
+
+# -> for tensorflow lite
+# Set environment
+set(TFLITE_ROOT_DIR $ENV{TFLITE_ROOT_DIR})
+if (${TFLITE_ROOT_DIR} STREQUAL "")
+  message(FATAL_ERROR "[BUILD] ENV TFLITE_ROOT_DIR not defined")
+endif()
+set(CMAKE_MODULE_PATH ${TFLITE_ROOT_DIR})
+
+# Build settings
+include(${TFLITE_ROOT_DIR}/cmakes/common.cmake)
+include(${TFLITE_ROOT_DIR}/cmakes/RASPI_NATIVE.cmake)
+
+find_package(TFLite REQUIRED)
+if(TFLite_FOUND)
+  message("[Build] TFLite found")
+else()
+  message(FATAL_ERROR "[BUILD] TFLite not found")
+endif()
+# <- for tensorflow lite
+
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  sensor_msgs
   std_msgs
+  cv_bridge
+  image_transport
 )
 
 ## System dependencies are found with CMake's conventions
@@ -69,7 +94,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   sensor_msgs#   std_msgs
 # )
 
 ################################################
@@ -103,8 +128,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES pigpio_test
-#  CATKIN_DEPENDS roscpp std_msgs
+#  LIBRARIES webcam_detect
+#  CATKIN_DEPENDS roscpp sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -117,11 +142,12 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${TFLite_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/pigpio_test.cpp
+#   src/${PROJECT_NAME}/webcam_detect.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -132,9 +158,8 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/pigpio_test_node.cpp)
-add_executable(write_test src/write_test.cpp)
-add_executable(read_test src/read_test.cpp)
+# add_executable(${PROJECT_NAME}_node src/webcam_detect_node.cpp)
+add_executable(webcam_detect src/webcam_detect.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,10 +175,9 @@ add_executable(read_test src/read_test.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(write_test ${catkin_LIBRARIES})
-target_link_libraries(write_test pigpiod_if2)
-target_link_libraries(read_test ${catkin_LIBRARIES})
-target_link_libraries(read_test pigpiod_if2)
+find_package(OpenCV REQUIRED)
+target_link_libraries(webcam_detect ${catkin_LIBRARIES} ${OpenCV_LIBS} ${TFLite_LIBS})
+
 
 #############
 ## Install ##
@@ -202,7 +226,7 @@ target_link_libraries(read_test pigpiod_if2)
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_pigpio_test.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_webcam_detect.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
