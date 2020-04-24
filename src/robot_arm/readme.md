@@ -122,20 +122,122 @@
         
 ### GPIO によるサーボモーターの制御
 - [参考](https://mozyanari.hatenablog.com/entry/2019/07/25/113932)
+- 以下のコマンドで、pigpio を有効化しておく
+    ```
+    $ sudo pigpiod
+    ```
 
 ### 認識機能の導入
-- [参考](https://www.youtube.com/watch?v=aimSGOAUI8Y)
-- 以下のコマンドで実行
+- [参考 : Tensorflow Lite による Webcam 画像の認識](https://www.youtube.com/watch?v=aimSGOAUI8Y)
+- raspbian buster ではそのままの手順で動作する。以下のコマンドで実行
     ```
     $ cd ~/Workspace/git/tflite1
     $ source tflite-env/bin/activate
     $ python3 TFLite_detection_webcam.py --modeldir=Sample_TFLite_model --resolution=640x480
     ```
-- OpenCVを使ったカメラ画像の取得
-    - [参考](https://qiita.com/vs4sh/items/4a9ce178f1b2fd26ea30)
-- tflite on raspberry pi のC++サンプル
-    - [参考1 : 数字認識](https://qiita.com/iwatake2222/items/4d198f6203348ef7fd31)
-    - [参考2 : カメラ画像の認識](https://github.com/mattn/webcam-detect-tflite/blob/master/main.cxx)
-- ROSへの組み込み（OpenCV + ROS）
+- Tensorflow Lite と OpenCV を使った Webcam 画像の認識 with C++
+    - [参考1 : Tensorflow Lite の導入](https://www.tensorflow.org/lite/guide/build_rpi)
+        - CMake での find_package を有効にする
+            - [find_package の動作](https://qiita.com/osamu0329/items/bd3d1e50edf37c277fa9)を参考に、TFLiteConfig.cmake を作成する
+                ```
+                cmake_minimum_required(VERSION 2.8)
+
+                # コンパイルオプションをセットする
+                set(CMAKE_C_FLAGS "-Wall -pthread")
+                set(CMAKE_C_FLAGS_DEBUG "-g -O0")
+                set(CMAKE_C_FLAGS_RELEASE "-O3 -s")
+                set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -lstdc++")
+                set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+                set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
+
+                # ラズパイ用のコンパイルオプションをセットする
+                set(CMAKE_BUILD_TYPE release)
+                # set(CMAKE_BUILD_TYPE debug)
+                # or
+                # cmake ../project -DCMAKE_BUILD_TYPE=Release
+                # cmake ../project -DCMAKE_BUILD_TYPE=Debug
+                set(ARM_COMPILE_OPTION "-mcpu=native -mfpu=neon-vfpv4 -funsafe-math-optimizations -ftree-vectorize")
+                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARM_COMPILE_OPTION}")
+                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARM_COMPILE_OPTION}")
+
+
+                # システムの環境変数をチェックする
+                if (NOT DEFINED TFLITE_ROOT_DIR)
+                set(TFLITE_ROOT_DIR $ENV{TENSORFLOW_SETUP_DIR})
+                endif()
+                if (${TFLITE_ROOT_DIR} STREQUAL "")
+                    message(FATAL_ERROR "ENV TENSORFLOW_SETUP_DIR is not defined")
+                endif()
+
+                # TFLite のインクルードディレクトリを探索する
+                find_path(TFLITE_INCLUDE_PATH NAME version.h
+                PATHS
+                    ${TFLITE_ROOT_DIR}/tensorflow/lite
+                )
+
+                # TFLite のビルド済みライブラリを探索する
+                find_path(TFLITE_LIBRARY_PATH NAME libtensorflow-lite.a
+                PATHS
+                    ${TFLITE_ROOT_DIR}/tensorflow/lite/tools/make/gen/linux-cpu-x86_64/lib
+                    ${TFLITE_ROOT_DIR}/tensorflow/lite/tools/make/gen/rpi_armv7l/lib
+                )
+
+                # advanced モードでない限り変数の存在を隠す
+                mark_as_advanced(TFLITE_INCLUDE_PATH TFLITE_LIBRARY_PATH)
+
+                # ヘッダファイルとライブラリが見つかったかどうかを判定する
+                if (DEFINED TFLITE_INCLUDE_PATH AND DEFINED TFLITE_LIBRARY_PATH)
+                set(TFLite_FOUND "YES")
+                endif()
+
+                # 見つかった場合変数をセットする
+                if (DEFINED TFLite_FOUND)
+                set(TFLite_INCLUDE_DIRS
+                    ${TFLITE_ROOT_DIR}
+                    ${TFLITE_INCLUDE_PATH}
+                    ${TFLITE_INCLUDE_PATH}/tools
+                    ${TFLITE_INCLUDE_PATH}/tools/make/downloads
+                    ${TFLITE_INCLUDE_PATH}/tools/make/downloads/eigen
+                    ${TFLITE_INCLUDE_PATH}/tools/make/downloads/absl
+                    ${TFLITE_INCLUDE_PATH}/tools/make/downloads/gemmlowp
+                    ${TFLITE_INCLUDE_PATH}/tools/make/downloads/neon_2_sse
+                    ${TFLITE_INCLUDE_PATH}/tools/make/downloads/farmhash/src
+                    ${TFLITE_INCLUDE_PATH}/tools/make/downloads/flatbuffers/include
+                )
+
+                set(TFLite_LIBS
+                    ${TFLITE_LIBRARY_PATH}/libtensorflow-lite.a
+                )
+                endif()
+                ```
+            - 作成した TFLiteConfig.cmake は Tensorflow をビルドしたパスに以下のように配置する
+                ```
+                $ mkdir -p ./share/cmake/TFLite
+                $ mv TFLiteConfig.cmake ./share/cmake/TFLite
+                ```
+            - コンフィグファイルを検索するパスを追加するために setup.bash を作成
+                ```
+                #!bin/bash
+
+                export TENSORFLOW_SETUP_DIR=$(builtin cd "`dirname "${BASH_SOURCE[0]}"`" > /dev/null && pwd)
+                # echo ${TENSORFLOW_SETUP_DIR}
+                if [ -z ${CMAKE_PREFIX_PATH} ]; then
+                  # define CMAKE_PREFIX_PATH
+                  export CMAKE_PREFIX_PATH=${TENSORFLOW_SETUP_DIR}
+                elif [[ ${CMAKE_PREFIX_PATH} != *${TENSORFLOW_SETUP_DIR}* ]]; then
+                  # add path to CMAKE_PREFIX_PATH
+                  export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${TENSORFLOW_SETUP_DIR}
+                else
+                  # do nothing
+                  :
+                fi
+                # echo ${CMAKE_PREFIX_PATH}
+                ```
+            - setup.bash は Tensorflow Lite をビルドしたディレクトリに配置する
+            - 作成した setup.bash を ~/.bashrc で実行する
+    - [参考2 : Webcam 画像の取得](https://qiita.com/vs4sh/items/4a9ce178f1b2fd26ea30)
+    - [参考3 : 数字認識のサンプルプログラム](https://qiita.com/iwatake2222/items/4d198f6203348ef7fd31)
+    - [参考4 : 物体認識のサンプルプログラム](https://github.com/mattn/webcam-detect-tflite/blob/master/main.cxx)
+- ROSへの組み込み（ROS + OpenCV + Tensorflow Lite）
     - [参考 : image_trasport の使い方](https://ya10345.hatenablog.com/entry/2019/05/19/031443)
 

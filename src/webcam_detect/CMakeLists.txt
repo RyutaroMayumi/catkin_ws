@@ -4,26 +4,21 @@ project(webcam_detect)
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
-
-# -> for tensorflow lite
-# Set environment
-set(TFLITE_ROOT_DIR $ENV{TFLITE_ROOT_DIR})
-if (${TFLITE_ROOT_DIR} STREQUAL "")
-  message(FATAL_ERROR "[BUILD] ENV TFLITE_ROOT_DIR not defined")
+# for opencv
+find_package(OpenCV REQUIRED)
+if(OpenCV_FOUND)
+  message("[Build] OpenCV found")
+else()
+  message(FATAL_ERROR "[BUILD] OpenCV not found")
 endif()
-set(CMAKE_MODULE_PATH ${TFLITE_ROOT_DIR})
 
-# Build settings
-include(${TFLITE_ROOT_DIR}/cmakes/common.cmake)
-include(${TFLITE_ROOT_DIR}/cmakes/RASPI_NATIVE.cmake)
-
+# for tensorflow lite
 find_package(TFLite REQUIRED)
 if(TFLite_FOUND)
   message("[Build] TFLite found")
 else()
   message(FATAL_ERROR "[BUILD] TFLite not found")
 endif()
-# <- for tensorflow lite
 
 
 ## Find catkin macros and libraries
@@ -175,7 +170,6 @@ add_executable(webcam_detect src/webcam_detect.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-find_package(OpenCV REQUIRED)
 target_link_libraries(webcam_detect ${catkin_LIBRARIES} ${OpenCV_LIBS} ${TFLite_LIBS})
 
 
