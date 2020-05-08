@@ -4,5 +4,6 @@
     <arg name="model" value="/home/pi/Workspace/catkin_ws/src/robot_arm/urdf/robot_arm.urdf" />
   </include>
   <include file="/home/pi/Workspace/catkin_ws/src/webcam_detect/launch/webcam_detect.launch" />
+  <include file="/home/pi/Workspace/catkin_ws/src/range_sensor/launch/range_sensor.launch" />
   <node pkg="robot_arm" name="motor_driver" type="motor_driver" output="screen" />
 </launch>

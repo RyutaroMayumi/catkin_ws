@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="range_sensor" name="range_sensor" type="range_sensor" output="screen">
+    <param name="device_name" type="str" value="/dev/spidev0.0"/>
+    <param name="duration" type="double" value="0.1"/>
+    <param name="ref_volts" type="double" value="5.0"/>
+  </node>
+</launch>

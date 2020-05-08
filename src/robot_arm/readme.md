@@ -1,3 +1,6 @@
+## 参考
+- [ラズパイIO関連](https://www.ei.tohoku.ac.jp/xkozima/lab/raspTutorial3.html)
+
 ## ハードウェア
 - [Raspberry Pi 4](https://www.amazon.co.jp/【国内正規代理店品】Raspberry-Pi4-ModelB-ラズベリーパイ4-技適対応品/dp/B081YD3VL5/ref=pd_aw_sbs_147_2/355-3642707-0969305?_encoding=UTF8&pd_rd_i=B081YD3VL5&pd_rd_r=198d8230-6677-4d1a-9a22-4a762da6b1d7&pd_rd_w=wOBTW&pd_rd_wg=GgPO4&pf_rd_p=bff3a3a6-0f6e-4187-bd60-25e75d4c1c8f&pf_rd_r=N93TP7A532W3P6E245W3&psc=1&refRID=N93TP7A532W3P6E245W3)
 - [6DOF ロボットアーム](https://www.amazon.co.jp/gp/product/B07M7TK6KR/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1)
@@ -126,6 +129,7 @@
     ```
     $ sudo pigpiod
     ```
+- [systemd で pigpiod の自動起動](https://hakengineer.xyz/2017/09/22/post-318/)
 
 ### 認識機能の導入
 - [参考 : Tensorflow Lite による Webcam 画像の認識](https://www.youtube.com/watch?v=aimSGOAUI8Y)
@@ -240,4 +244,16 @@
     - [参考4 : 物体認識のサンプルプログラム](https://github.com/mattn/webcam-detect-tflite/blob/master/main.cxx)
 - ROSへの組み込み（ROS + OpenCV + Tensorflow Lite）
     - [参考 : image_trasport の使い方](https://ya10345.hatenablog.com/entry/2019/05/19/031443)
+
+## 測距センサーの導入
+- [参考1 : Python のサンプルプログラム](https://hack-le.com/47361017-2/)
+- [参考2 : C++ のサンプルプログラム](https://github.com/rm-hull/spidev-test)
+- [参考3 : C++ のサンプルプログラム](https://github.com/halherta/RaspberryPi-mcp3008Spi)
+- raspbian buster では raspi-config の選択肢が変更されているので注意
+    - 5 Interfacing Options
+        - P4 SPI
+- 参考3のクラス定義ファイル（mcp3008Spi.c, mcp3008Spi.hをそのまま使ってノードを作成する場合
+    - ROS のパッケージディレクトリの sec/ 以下に mcp3008Spi.c を、include/ 以下に mcp3008Spi.h を配置する
+    - ROS のパッケージディレクトリの CMakeLists.txt の include_directories に "include" を追加（コメント解除）する
+    - ROS ノードのクラスインスタンス内部で mcp3008Spi クラスのメンバ変数を用いる場合は、宣言時に初期化しなければ実行時エラーになるため、new を使用してポインタメンバ変数とする必要がある。
 
